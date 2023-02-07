@@ -1,0 +1,21 @@
+{% extends 'main.html' %}
+{% block content %}
+<main class="container mt-3 mb-5">
+	
+	<!-- featured news -->
+	<div class="row my-3">
+		<!-- Left -->
+		<div class="col-md-8">
+			<div class="card mb-3">
+                <img src="/media/{{news.image}}" class="card-img-top" >
+			  <div class="card-body">
+			    <p class="card-title h1">{{news.title}}</p>
+			    <hr/>
+			    <p class="card-text">{{news.detail}}</p>
+				<!-- <p class="card-text"><a href="/category/{{cat.id}}" class="btn btn-sm btn-success">Previous Page</a></p> -->				
+			  </div>
+			</div>		
+			<p class="card-text"><a href="/all-news" class="btn btn-sm btn-success">Previous Page</a></p>
+	</div>	
+</main>
+{% endblock %}
