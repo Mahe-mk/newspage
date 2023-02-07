@@ -51,11 +51,11 @@ def category(request,id):
 
 # To Signup the user for login
 def Signup(request):
-    
-    
+     
     return render (request, 'signup.html')
 
 def signin(request):
+    
     return render(request, 'signin.html')
 
 
