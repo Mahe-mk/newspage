@@ -3,8 +3,10 @@ from django.contrib import messages
 from .models import News, Categories
 from rest_framework.views import APIView
 from django.contrib.auth.models import User
+from django.contrib.auth import login, authenticate
 from django.contrib.auth.forms import UserCreationForm
-
+from django.db import IntegrityError
+from django.contrib.auth.forms import AuthenticationForm
 # Create your views here.
 
 def home(request):
@@ -50,14 +52,39 @@ def category(request,id):
     })
 
 # To Signup the user for login
-def Signup(request):
+# def Signup(request):
      
-    return render (request, 'signup.html')
+#     return render (request, 'signup.html')
+
 
 def signin(request):
+    if request.method == "POST":
+        form = AuthenticationForm(request, data=request.POST)
+        if form.is_valid():
+            username = form.cleaned_data.get('username')
+            password = form.cleaned_data.get('password')
+            user = authenticate(username=username, password=password)
+  
     
     return render(request, 'signin.html')
 
 
 def signout(request):
     return render(request, 'signout.html')
+
+
+def signup(request):
+    if(request.method == 'GET'):
+        return render(request, 'signup.html', {'form': UserCreationForm()})
+    else:
+        try:
+            if(request.POST['password1'] == request.POST['password2']):
+                user = User.objects.create_user(request.POST['username'], request.POST['password1'])
+                user.save()
+                signin(request,user)
+                return redirect('home')
+                #return render(request, 'tasks/register.html', {'form': UserCreationForm(), 'Message': 'User Created Successfully'})
+            else:
+                return render(request, 'signup.html', {'form': UserCreationForm(), 'Message': 'Passwords Do Not Match'})
+        except IntegrityError:
+            return render(request, 'signup.html', {'form': UserCreationForm(), 'Message': 'UserName Already Exists, Please choose a different Name'})
