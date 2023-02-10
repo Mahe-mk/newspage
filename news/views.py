@@ -2,10 +2,10 @@ from django.shortcuts import render,redirect
 from django.contrib import messages
 from .models import News, Categories
 from rest_framework.views import APIView
-from django.contrib.auth.models import User
 from django.contrib.auth import login, authenticate
 from django.contrib.auth.forms import UserCreationForm
-from django.db import IntegrityError
+from django.http import HttpResponse
+from django.contrib.auth import logout
 from django.contrib.auth.forms import AuthenticationForm
 # Create your views here.
 
@@ -52,39 +52,45 @@ def category(request,id):
     })
 
 # To Signup the user for login
-# def Signup(request):
-     
-#     return render (request, 'signup.html')
-
-
-def signin(request):
-    if request.method == "POST":
-        form = AuthenticationForm(request, data=request.POST)
-        if form.is_valid():
-            username = form.cleaned_data.get('username')
-            password = form.cleaned_data.get('password')
-            user = authenticate(username=username, password=password)
-  
-    
-    return render(request, 'signin.html')
-
-
-def signout(request):
-    return render(request, 'signout.html')
-
 
 def signup(request):
-    if(request.method == 'GET'):
-        return render(request, 'signup.html', {'form': UserCreationForm()})
+    if request.method == 'POST':
+        form = UserCreationForm(request.POST)
+        if form.is_valid():
+            form.save()
+            username = form.cleaned_data.get('username')
+            password = form.cleaned_data.get('password1')
+            user = authenticate(username=username, password=password)
+            login(request,user)
+            return redirect('signin')
     else:
-        try:
-            if(request.POST['password1'] == request.POST['password2']):
-                user = User.objects.create_user(request.POST['username'], request.POST['password1'])
-                user.save()
-                signin(request,user)
-                return redirect('home')
-                #return render(request, 'tasks/register.html', {'form': UserCreationForm(), 'Message': 'User Created Successfully'})
-            else:
-                return render(request, 'signup.html', {'form': UserCreationForm(), 'Message': 'Passwords Do Not Match'})
-        except IntegrityError:
-            return render(request, 'signup.html', {'form': UserCreationForm(), 'Message': 'UserName Already Exists, Please choose a different Name'})
+        form = UserCreationForm()
+    return render(request, 'signup.html', {'form': form})
+
+# def signin(request):
+#     if request.method == 'POST':
+#         username = request.POST.get('username')
+#         password = request.POST.get('password')
+#         user = authenticate(request, username=username, password=password)
+#         if user is not None:
+#             login(request, user)
+#             return redirect('home')
+#     return render(request, 'signin.html', {})
+
+# To Signin the user
+def signin(request):
+	if request.method == "POST":
+		form = AuthenticationForm(request, data=request.POST)
+		if form.is_valid():
+			username = form.cleaned_data.get('username')
+			password = form.cleaned_data.get('password')
+			user = authenticate(username=username, password=password)
+		else:
+			messages.error(request,"Invalid username or password.")
+	form = AuthenticationForm()
+	return render(request=request, template_name="signin.html", context={"signin_form":form})
+
+# To Signout the  user
+def signout(request):
+    logout(request)
+    return render(request, 'signout.html')

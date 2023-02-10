@@ -6,13 +6,14 @@
 </head>
 <body>
 <form method ='post'>
-{% csrf_token %}
-{{ form.as_table }}
-<br>
-<input type="submit" value="Register User"></input>
-<!-- as_ul, as_p, as_table -->
+    <h2>Welcome To Signup page</h2>
+    {% csrf_token %}
+    {{ form.as_table }}
+    <br>
+    <input type="submit" value="Register User"></input>
+
 </form>
 <br>
 {{ Message }}
 </body>
-</html>
+</html> 
