@@ -4,6 +4,7 @@ from .models import News, Categories
 from rest_framework.views import APIView
 from django.contrib.auth import login, authenticate
 from django.contrib.auth.forms import UserCreationForm
+from .forms import UserRegistrationForm
 from django.http import HttpResponse
 from django.contrib.auth import logout
 from django.contrib.auth.forms import AuthenticationForm
@@ -55,27 +56,17 @@ def category(request,id):
 
 def signup(request):
     if request.method == 'POST':
-        form = UserCreationForm(request.POST)
+        form = UserRegistrationForm(request.POST)
         if form.is_valid():
             form.save()
-            username = form.cleaned_data.get('username')
-            password = form.cleaned_data.get('password1')
-            user = authenticate(username=username, password=password)
-            login(request,user)
+            messages.success(request, 'Your account has been created. You can log in now!')    
             return redirect('signin')
     else:
-        form = UserCreationForm()
-    return render(request, 'signup.html', {'form': form})
+        form = UserRegistrationForm()
 
-# def signin(request):
-#     if request.method == 'POST':
-#         username = request.POST.get('username')
-#         password = request.POST.get('password')
-#         user = authenticate(request, username=username, password=password)
-#         if user is not None:
-#             login(request, user)
-#             return redirect('home')
-#     return render(request, 'signin.html', {})
+    context = {'form': form}
+    return render(request, 'signup.html', context)
+
 
 # To Signin the user
 def signin(request):
@@ -94,3 +85,4 @@ def signin(request):
 def signout(request):
     logout(request)
     return render(request, 'signout.html')
+

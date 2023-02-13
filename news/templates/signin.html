@@ -1,18 +1,17 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <title>Login</title>
+  <title>SignIn</title>
 </head>
 <body>
-  <h1>Login</h1>
-  <form method="POST">
+  <h1>Welcome to SignIn Page</h1>
+  <form action="" method="POST">
     {% csrf_token %}
-    {{ form.as_p }}
-
-    <button type="submit">Login</button>
-    <a class="nav-link" href="{% url 'signup' %}">SignUp</a>
-
-  </form>
+    {% for field in form %}
+        <p>{{ field.label }}: <br> {{ field }}</p>
+    {% endfor %}
+    <button type="submit">SignIn</button>
+    <p>Don't have an account? <a href="{% url 'signup' %}">Signup here</a></p>
+</form>
 </body>
 </html>
-

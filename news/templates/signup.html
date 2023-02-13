@@ -2,17 +2,20 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Register User</title>
+    <title>Welcome to Register Page</title>
 </head>
 <body>
-<form method ='post'>
-    <h2>Welcome To Signup page</h2>
-    {% csrf_token %}
-    {{ form.as_table }}
-    <br>
-    <input type="submit" value="Register User"></input>
+    <form action="" method="POST">
+        {% csrf_token %}
+    
+        {% for field in form %}
+            <div>
+                <p>{{ field.label }}: <br> {{ field }}</p> 
+            </div>
+        {% endfor %}
+        <button type="submit">Register</button>
+    </form>
 
-</form>
 <br>
 {{ Message }}
 </body>
