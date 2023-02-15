@@ -8,6 +8,7 @@ from .forms import UserRegistrationForm
 from django.http import HttpResponse
 from django.contrib.auth import logout
 from django.contrib.auth.forms import AuthenticationForm
+import requests
 # Create your views here.
 
 def home(request):
@@ -58,8 +59,7 @@ def signup(request):
     if request.method == 'POST':
         form = UserRegistrationForm(request.POST)
         if form.is_valid():
-            form.save()
-            messages.success(request, 'Your account has been created. You can log in now!')    
+            form.save()  
             return redirect('signin')
     else:
         form = UserRegistrationForm()
@@ -86,3 +86,10 @@ def signout(request):
     logout(request)
     return render(request, 'signout.html')
 
+def weather(request):
+    api_key = "333a8faa57184ef5534e17ed15f5d342"
+    city = "Madurai"
+    api_url = f"http://api.openweathermap.org/data/2.5/weather?q={city}&appid={api_key}"
+    response = requests.get(api_url)
+    weather_data = response.json()
+    return render(request, "weather.html", {"weather_data": weather_data},)

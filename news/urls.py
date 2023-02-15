@@ -13,7 +13,10 @@ urlpatterns=[
     path('all-category',views.all_category,name='all-category'),
     path('category/<int:id>',views.category,name='category'),
     path('signin', auth_views.LoginView.as_view(template_name='signin.html'), name='signin'),
-    path('signout/', auth_views.LogoutView.as_view(template_name='signout.html'), name='signout'),
+    path('signout', auth_views.LogoutView.as_view(template_name='signout.html'), name='signout'),
     path('signup',views.signup,name='signup'),
+    path('weather',views.weather,name='weather'),
+
 ] 
 urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
+

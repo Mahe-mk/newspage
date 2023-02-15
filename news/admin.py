@@ -8,4 +8,3 @@ class AdminNews(admin.ModelAdmin):
     list_display=('title','category')
 
 admin.site.register(News,AdminNews)
-
