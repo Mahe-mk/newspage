@@ -63,7 +63,6 @@ def signup(request):
             return redirect('signin')
     else:
         form = UserRegistrationForm()
-
     context = {'form': form}
     return render(request, 'signup.html', context)
 
@@ -75,17 +74,18 @@ def signin(request):
 		if form.is_valid():
 			username = form.cleaned_data.get('username')
 			password = form.cleaned_data.get('password')
-			user = authenticate(username=username, password=password)
+			user = authenticate(username=username, password=password)            
 		else:
 			messages.error(request,"Invalid username or password.")
 	form = AuthenticationForm()
-	return render(request=request, template_name="signin.html", context={"signin_form":form})
+	return render(request=request, template_name="signin.html", context={"signin_form":form},)
 
 # To Signout the  user
 def signout(request):
     logout(request)
     return render(request, 'signout.html')
 
+# To display the weather report
 def weather(request):
     api_key = "333a8faa57184ef5534e17ed15f5d342"
     city = "Madurai"
@@ -93,3 +93,4 @@ def weather(request):
     response = requests.get(api_url)
     weather_data = response.json()
     return render(request, "weather.html", {"weather_data": weather_data},)
+
