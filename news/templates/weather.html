@@ -1,0 +1,14 @@
+{% extends "main.html" %}
+
+{% block content %}
+<body>
+    <main class="container mt-3 mb-5">
+        <h3 class="border-bottom pb-1 my-4">Weather Report</h3>
+      
+        <!-- <h1>The weather report for the country of {{weather_data.sys.country}}</h1> -->
+        <p>Temperature: {{ weather_data.main.temp }}°C</p>
+        <p>Humidity: {{ weather_data.main.humidity }}%</p>
+        <p>Wind Speed: {{ weather_data.wind.speed }}m/s</p>
+</body>
+{% endblock %}
+</html> 

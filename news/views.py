@@ -2,11 +2,13 @@ from django.shortcuts import render,redirect
 from django.contrib import messages
 from .models import News, Categories
 from rest_framework.views import APIView
-from django.contrib.auth.models import User
 from django.contrib.auth import login, authenticate
 from django.contrib.auth.forms import UserCreationForm
-from django.db import IntegrityError
+from .forms import UserRegistrationForm
+from django.http import HttpResponse
+from django.contrib.auth import logout
 from django.contrib.auth.forms import AuthenticationForm
+import requests
 # Create your views here.
 
 def home(request):
@@ -52,39 +54,43 @@ def category(request,id):
     })
 
 # To Signup the user for login
-# def Signup(request):
-     
-#     return render (request, 'signup.html')
-
-
-def signin(request):
-    if request.method == "POST":
-        form = AuthenticationForm(request, data=request.POST)
-        if form.is_valid():
-            username = form.cleaned_data.get('username')
-            password = form.cleaned_data.get('password')
-            user = authenticate(username=username, password=password)
-  
-    
-    return render(request, 'signin.html')
-
-
-def signout(request):
-    return render(request, 'signout.html')
-
 
 def signup(request):
-    if(request.method == 'GET'):
-        return render(request, 'signup.html', {'form': UserCreationForm()})
+    if request.method == 'POST':
+        form = UserRegistrationForm(request.POST)
+        if form.is_valid():
+            form.save()  
+            return redirect('signin')
     else:
-        try:
-            if(request.POST['password1'] == request.POST['password2']):
-                user = User.objects.create_user(request.POST['username'], request.POST['password1'])
-                user.save()
-                signin(request,user)
-                return redirect('home')
-                #return render(request, 'tasks/register.html', {'form': UserCreationForm(), 'Message': 'User Created Successfully'})
-            else:
-                return render(request, 'signup.html', {'form': UserCreationForm(), 'Message': 'Passwords Do Not Match'})
-        except IntegrityError:
-            return render(request, 'signup.html', {'form': UserCreationForm(), 'Message': 'UserName Already Exists, Please choose a different Name'})
+        form = UserRegistrationForm()
+    context = {'form': form}
+    return render(request, 'signup.html', context)
+
+
+# To Signin the user
+def signin(request):
+	if request.method == "POST":
+		form = AuthenticationForm(request, data=request.POST)
+		if form.is_valid():
+			username = form.cleaned_data.get('username')
+			password = form.cleaned_data.get('password')
+			user = authenticate(username=username, password=password)            
+		else:
+			messages.error(request,"Invalid username or password.")
+	form = AuthenticationForm()
+	return render(request=request, template_name="signin.html", context={"signin_form":form},)
+
+# To Signout the  user
+def signout(request):
+    logout(request)
+    return render(request, 'signout.html')
+
+# To display the weather report
+def weather(request):
+    api_key = "333a8faa57184ef5534e17ed15f5d342"
+    city = "Madurai"
+    api_url = f"http://api.openweathermap.org/data/2.5/weather?q={city}&appid={api_key}"
+    response = requests.get(api_url)
+    weather_data = response.json()
+    return render(request, "weather.html", {"weather_data": weather_data},)
+
