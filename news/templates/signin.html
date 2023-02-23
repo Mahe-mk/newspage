@@ -3,6 +3,7 @@
 <head>
   <title>SignIn</title>
 </head>
+{% load socialaccount %}
 <body>
   <h1>Welcome to SignIn Page</h1>
   <form action="" method="POST">
@@ -12,6 +13,13 @@
     {% endfor %}
     <button type="submit">SignIn</button>
     <p>Don't have an account? <a href="{% url 'signup' %}">Signup here</a></p>
+    <p>or</p>
+    <button class="btn btn-outline-info">
+      <a href="{% provider_login_url 'google'%}">
+          <i class="fab fa-google"></i>
+          Login with Google
+      </a>
+    </button>
 </form>
 </body>
 </html>

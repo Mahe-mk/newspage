@@ -94,3 +94,5 @@ def weather(request):
     weather_data = response.json()
     return render(request, "weather.html", {"weather_data": weather_data},)
 
+
+

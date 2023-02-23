@@ -1,4 +1,4 @@
-from django.urls import path
+from django.urls import path,include
 
 from django.conf import settings
 from django.conf.urls.static import static
@@ -16,6 +16,7 @@ urlpatterns=[
     path('signout', auth_views.LogoutView.as_view(template_name='signout.html'), name='signout'),
     path('signup',views.signup,name='signup'),
     path('weather',views.weather,name='weather'),
+    path("", include("allauth.urls")),
 
 ] 
 urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
