@@ -18,6 +18,7 @@ urlpatterns=[
     path('weather',views.weather,name='weather'),
     path("", include("allauth.urls")),
 
+
 ] 
 urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
 
