@@ -14,7 +14,7 @@ from django.contrib.auth.models import User
 from django.contrib.auth.forms import AuthenticationForm
 from django.views import View
 from django.views.generic import ListView
-import requests
+import requests,os
 from google.oauth2 import id_token
 # Create your views here.
 
@@ -127,7 +127,7 @@ class WeatherView(View):
 # To Authenticate the user with Google account
 class GoogleLogin(View):
     def get(self, request):
-        client_id = '975926624037-l9em3aj7nple7si3t9kjg27jc926nig2.apps.googleusercontent.com'
+        client_id = os.getenv('CLIENT_ID')
         redirect_uri = 'http://127.0.0.1:8000/google/login/callback/'
         scope = ['https://www.googleapis.com/auth/userinfo.email', 'https://www.googleapis.com/auth/userinfo.profile']
         auth_url = 'https://accounts.google.com/o/oauth2/v2/auth?' + \
@@ -141,8 +141,8 @@ class GoogleLogin(View):
 class AuthRedirect(View):
     def get(self, request):
         token_url = 'https://oauth2.googleapis.com/token'
-        client_id = '975926624037-l9em3aj7nple7si3t9kjg27jc926nig2.apps.googleusercontent.com'
-        client_secret = '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'
+        client_id = os.getenv('CLIENT_ID')
+        client_secret = os.getenv('CLIENT_SECRET')
         redirect_uri = 'http://127.0.0.1:8000/google/login/callback/'
         code = request.GET.get("code")
         params = {
