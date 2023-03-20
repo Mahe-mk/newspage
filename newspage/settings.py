@@ -122,7 +122,8 @@ USE_I18N = True
 USE_TZ = True
 
 AUTHENTICATION_BACKENDS = [
-    'allauth.account.auth_backends.AuthenticationBackend'
+    'allauth.account.auth_backends.AuthenticationBackend',
+
     ]
 
 # Static files (CSS, JavaScript, Images)
@@ -137,7 +138,6 @@ MEDIA_URL = '/media/'
 
 # DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 LOGIN_REDIRECT_URL = "home"
-
 
 SOCIALACCOUNT_PROVIDERS = {
     'google': {
