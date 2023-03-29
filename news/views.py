@@ -1,7 +1,7 @@
 from django.shortcuts import render,redirect,get_object_or_404
 from django.contrib import messages
 from django.urls import reverse
-from .models import News, Categories,UsersFavoriteCategory
+from .models import News, Categories,UsersFavoriteCategory,ExtraField
 from rest_framework.views import APIView
 from django.contrib.auth import login, authenticate
 from django.contrib.auth.forms import UserCreationForm
@@ -74,8 +74,7 @@ class SignUpView(View):
     def get(self, request):
         form = UserRegistrationForm()
         context = {'form': form}
-        return render(request, 'signup.html', context)
-    
+        return render(request, 'signup.html', context)    
     def post(self, request):
         form = UserRegistrationForm(request.POST)
         if form.is_valid():
@@ -106,7 +105,6 @@ class SignInView(View):
         context = {'signin_form': form}
         return render(request, 'signin.html', context)
     
-
 # To Signout the  user
 class SignOutView(View):
     def get(self, request):
@@ -129,7 +127,10 @@ class GoogleLogin(View):
     def get(self, request):
         client_id = os.getenv('CLIENT_ID')
         redirect_uri = 'http://127.0.0.1:8000/google/login/callback/'
-        scope = ['https://www.googleapis.com/auth/userinfo.email', 'https://www.googleapis.com/auth/userinfo.profile']
+        scope = ['https://www.googleapis.com/auth/userinfo.email', 
+                 'https://www.googleapis.com/auth/userinfo.profile',
+                 'https://www.googleapis.com/auth/user.phonenumbers.read',
+                 'https://www.googleapis.com/auth/user.addresses.read',]
         auth_url = 'https://accounts.google.com/o/oauth2/v2/auth?' + \
             f'client_id={client_id}&' + \
             f'redirect_uri={redirect_uri}&' + \
@@ -157,19 +158,33 @@ class AuthRedirect(View):
         access_token = token_data.get('access_token')
         if access_token:
             profile_url = 'https://www.googleapis.com/oauth2/v2/userinfo'
+            people_url = 'https://people.googleapis.com/v1/people/me?personFields=phoneNumbers,addresses'
             headers = {'Authorization': f'Bearer {access_token}'}
             profile_response = requests.get(profile_url, headers=headers)
+            people_response = requests.get(people_url, headers=headers)
             profile_data = profile_response.json()
             email = profile_data.get('email')
             name = profile_data.get('name')
+            people_data = people_response.json()
+            phone_number = None
+            if 'phoneNumbers' in people_data:
+                phone_number = people_data['phoneNumbers'][0]['value']
+            addresses = None    
+            if 'addresses' in people_data:
+                addresses = people_data['addresses'][0]['formattedValue']
             if email:
                 first_name = name.split()[0]
                 try:
                     user = User.objects.get(email=email)
                     user.first_name = first_name
                     user.save()
+                    extra_field = ExtraField.objects.get(user=user)
+                    extra_field.phone_number = phone_number
+                    extra_field.addresses = addresses
+                    extra_field.save()
                 except User.DoesNotExist:
                     user = User.objects.create_user(first_name, email=email, first_name=first_name)
+                    extra_field = ExtraField.objects.create(user=user,phone_number=phone_number,addresses=addresses)
                 login(request, user)
                 return redirect('home')
         return redirect('signin')
