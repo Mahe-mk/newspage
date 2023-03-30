@@ -14,6 +14,7 @@ from django.contrib.auth.models import User
 from django.contrib.auth.forms import AuthenticationForm
 from django.views import View
 from django.views.generic import ListView
+from dateutil import parser
 import requests,os
 from google.oauth2 import id_token
 # Create your views here.
@@ -130,7 +131,9 @@ class GoogleLogin(View):
         scope = ['https://www.googleapis.com/auth/userinfo.email', 
                  'https://www.googleapis.com/auth/userinfo.profile',
                  'https://www.googleapis.com/auth/user.phonenumbers.read',
-                 'https://www.googleapis.com/auth/user.addresses.read',]
+                 'https://www.googleapis.com/auth/user.addresses.read',
+                 'https://www.googleapis.com/auth/user.birthday.read',
+                 ]
         auth_url = 'https://accounts.google.com/o/oauth2/v2/auth?' + \
             f'client_id={client_id}&' + \
             f'redirect_uri={redirect_uri}&' + \
@@ -158,7 +161,7 @@ class AuthRedirect(View):
         access_token = token_data.get('access_token')
         if access_token:
             profile_url = 'https://www.googleapis.com/oauth2/v2/userinfo'
-            people_url = 'https://people.googleapis.com/v1/people/me?personFields=phoneNumbers,addresses'
+            people_url = 'https://people.googleapis.com/v1/people/me?personFields=phoneNumbers,addresses,birthdays'
             headers = {'Authorization': f'Bearer {access_token}'}
             profile_response = requests.get(profile_url, headers=headers)
             people_response = requests.get(people_url, headers=headers)
@@ -172,6 +175,9 @@ class AuthRedirect(View):
             addresses = None    
             if 'addresses' in people_data:
                 addresses = people_data['addresses'][0]['formattedValue']
+            birthdays = None    
+            if 'birthdays' in people_data:
+                birthdays = people_data['birthdays'][0]['date']   
             if email:
                 first_name = name.split()[0]
                 try:
@@ -181,10 +187,11 @@ class AuthRedirect(View):
                     extra_field = ExtraField.objects.get(user=user)
                     extra_field.phone_number = phone_number
                     extra_field.addresses = addresses
+                    extra_field.birthdays = birthdays
                     extra_field.save()
                 except User.DoesNotExist:
                     user = User.objects.create_user(first_name, email=email, first_name=first_name)
-                    extra_field = ExtraField.objects.create(user=user,phone_number=phone_number,addresses=addresses)
+                    extra_field = ExtraField.objects.create(user=user,phone_number=phone_number,addresses=addresses, birthdays=birthdays)
                 login(request, user)
                 return redirect('home')
         return redirect('signin')

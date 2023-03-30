@@ -3,7 +3,7 @@ from django.conf import settings
 from django.conf.urls.static import static
 from django.contrib.auth import views as auth_views
 from news import views
-from.views import Home,All_news,Categories,AllCategory,Detail,Category,SignUpView,WeatherView,GoogleLogin,AuthRedirect,MyCategoriesView
+from.views import Home,All_news,AllCategory,Detail,Category,SignUpView,WeatherView,GoogleLogin,AuthRedirect,MyCategoriesView
 
 
 urlpatterns=[
