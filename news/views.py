@@ -7,13 +7,14 @@ from django.contrib.auth import login, authenticate
 from django.contrib.auth.forms import UserCreationForm
 from django.contrib.auth.mixins import LoginRequiredMixin
 from .forms import UserRegistrationForm
-from django.http import HttpResponse
+from django.http import HttpResponse,JsonResponse
 from google_auth_oauthlib.flow import Flow
 from django.contrib.auth import logout
 from django.contrib.auth.models import User
 from django.contrib.auth.forms import AuthenticationForm
 from django.views import View
 from django.views.generic import ListView
+from.serializers import NewsSerializer,UserSerializer,CategoriesSerializer
 from dateutil import parser
 import requests,os
 from google.oauth2 import id_token
@@ -38,7 +39,12 @@ class All_news(View):
         all_news=News.objects.all()
         return render(request, 'all-news.html', {
             'all_news': all_news
-        })
+        })  
+    
+def allNews(request):
+    allNews = News.objects.all()
+    data = {'allNews': [{'title': News.title, 'detail': News.detail} for news in allNews]}
+    return JsonResponse(data)
      
 
 # Fetch the detailed full news 
@@ -50,7 +56,6 @@ class Detail(View):
             'news': news,
         })        
 
-
 # Fetch all category 
 class AllCategory(View):
     def get(self, request):
@@ -59,6 +64,11 @@ class AllCategory(View):
             'cats': cats
         })
     
+# class AllCategory(View):  
+#     def get(self, request):
+#         cats = Categories.objects.all()
+#         data = [{'id': cat.id, 'title': cat.title, 'category_image': cat.category_image.url} for cat in cats]
+#         return JsonResponse({'categories': data})    
 
 # Fetch all news from selected category
 class Category(View):
@@ -208,3 +218,13 @@ class MyCategoriesView(LoginRequiredMixin, ListView):
         favorite_categories = UsersFavoriteCategory.objects.filter(user=username)
         fav_news = News.objects.filter(category__in=favorite_categories.values_list('category'))
         return fav_news
+
+
+def index(request):
+    return render (request, 'index.html')
+
+class NewsAPIView(APIView):
+    def get(self, request):
+        news=News.objects.all()
+        serializer= NewsSerializer(news, many= True)
+        return Response(serializer.data)

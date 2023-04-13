@@ -46,6 +46,8 @@ INSTALLED_APPS = [
     "allauth.account",
     "allauth.socialaccount",
     "allauth.socialaccount.providers.google",
+    "corsheaders",
+    "rest_framework",
 ]
 
 SITE_ID = 1 
@@ -59,7 +61,15 @@ MIDDLEWARE = [
     "django.contrib.auth.middleware.AuthenticationMiddleware",
     "django.contrib.messages.middleware.MessageMiddleware",
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
-    "news.middleware.AuthenticationMiddleware"
+    "news.middleware.AuthenticationMiddleware",
+    "corsheaders.middleware.CorsMiddleware",
+
+]
+CORS_ORIGIN_ALLOW_ALL = True
+
+CORS_ORIGIN_WHITELIST = [
+    "http://localhost:3000"
+    # "http://localhost:3000/*"
 ]
 
 ROOT_URLCONF = "newspage.urls"
@@ -67,7 +77,9 @@ ROOT_URLCONF = "newspage.urls"
 TEMPLATES = [
     {
         "BACKEND": "django.template.backends.django.DjangoTemplates",
-        "DIRS": [],
+        "DIRS": [
+                os.path.join(BASE_DIR, 'newsui/build/')
+        ],
         "APP_DIRS": True,
         "OPTIONS": {
             "context_processors": [
@@ -143,3 +155,7 @@ MEDIA_URL = '/media/'
 # DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 LOGIN_REDIRECT_URL = "home"
 
+
+STATICFILES_DIRS = [
+    os.path.join(BASE_DIR, 'newsui/build/static') 
+]

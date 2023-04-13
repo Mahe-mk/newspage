@@ -18,7 +18,7 @@ class Categories(models.Model):
     class Meta:
         verbose_name_plural='categories'
     def __str__ (self):
-        return self.title
+        return self.title   
 
 class News(models.Model):
     category=models.ForeignKey(Categories,on_delete=models.CASCADE)
