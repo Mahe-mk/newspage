@@ -30,31 +30,3 @@ class UsersFavoriteCategorySerializer(serializers.ModelSerializer):
     class Meta:
         model = UsersFavoriteCategory
         fields = ('id', 'user', 'category')
-
-
-
-
-
-
-
-
-
-
-
-
-        # from rest_framework import serializers
-# from .models import Categories, News
-
-# class CategoriesSerializer(serializers.ModelSerializer):
-#     class Meta:
-#         model = Categories
-#         fields = ('id', 'title', 'category_image')
-
-# class NewsSerializer(serializers.ModelSerializer):
-#     category = CategoriesSerializer()
-#     class Meta:
-#         model = News
-#         fields = ('id', 'category', 'title', 'image', 'detail')
-
-
-

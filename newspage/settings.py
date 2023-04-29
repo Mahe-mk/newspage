@@ -61,16 +61,16 @@ MIDDLEWARE = [
     "django.contrib.auth.middleware.AuthenticationMiddleware",
     "django.contrib.messages.middleware.MessageMiddleware",
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
-    "news.middleware.AuthenticationMiddleware",
+    # "news.middleware.AuthenticationMiddleware",
     "corsheaders.middleware.CorsMiddleware",
 
 ]
 CORS_ORIGIN_ALLOW_ALL = True
 
 CORS_ORIGIN_WHITELIST = [
-    "http://localhost:3000"
+    "http://localhost:3000",
     # "http://localhost:3000/*"
-]
+]   
 
 ROOT_URLCONF = "newspage.urls"
 

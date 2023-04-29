@@ -3,14 +3,12 @@ from django.conf import settings
 from django.conf.urls.static import static
 from django.contrib.auth import views as auth_views
 from news import views
-from.views import Home,All_news,index,AllCategory,Detail,Category,SignUpView,WeatherView,GoogleLogin,AuthRedirect,MyCategoriesView
+from.views import Home,All_news,AllCategory,Detail,Category,SignUpView,WeatherView,GoogleLogin,AuthRedirect,MyCategoriesView
 
 
 urlpatterns=[
     path('',Home.as_view(),name='home'),
     path('all-news',All_news.as_view(),name='all-news'),
-    # path('all-News',views.allNews,name='all-news'),
-    path('index',index),
     path('detail/<int:id>',Detail.as_view(),name='detail'),
     path('all-category',AllCategory.as_view(),name='all-category'),
     path('category/<int:id>',Category.as_view(),name='category'),
@@ -21,6 +19,5 @@ urlpatterns=[
     path('weather',WeatherView.as_view(),name='weather'),
     path('google/login/?next=/', GoogleLogin.as_view(), name='google_login'),
     path('google/login/callback/', AuthRedirect.as_view(), name='google_callback')
-    # path('api',)
 ]
 urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

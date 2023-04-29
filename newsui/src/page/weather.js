@@ -14,29 +14,42 @@
 // }
 // export default Weather
 
-import React, { useEffect, useState } from 'react';
+import React, { useState, useEffect } from 'react';
+import axios from 'axios';
 
-function Weather() {
-  const [WeatherData, setWeatherData] = useState(null);
+const Weather = () => {
+  const [weatherData, setWeatherData] = useState(null);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    fetch('/weather')
-      .then(response => response.json())
-      .then(data => setWeatherData(data))
-      .catch(error => console.log(error));
+    const fetchWeatherData = async () => {
+      const city = "Madurai";
+      const apiKey = "333a8faa57184ef5534e17ed15f5d342";
+      // const apiUrl = `http://api.openweathermap.org/data/2.5/weather?q=${city}&appid=${apiKey}&units=metric`;
+      const apiUrl = `http://api.openweathermap.org/data/2.5/weather?q=${city}&appid=${apiKey}`;
+
+      try {
+        const response = await axios.get(apiUrl);
+        setWeatherData(response.data);
+        setLoading(false);
+      } catch (error) {
+        console.error(error);
+      }
+    };
+
+    fetchWeatherData();
   }, []);
-console.log("WeatherData",WeatherData);
+  if (loading) {
+    return <div>Loading weather data...</div>;
+  }
   return (
     <div>
-      {WeatherData && (
-        <div>
-          <h1>Weather in {WeatherData.name}</h1>
-          <p>Temperature: {WeatherData.main.temp}</p>
-          <p>Humidity: {WeatherData.main.humidity}</p>
-          <p>Weather: {WeatherData.weather[0].main}</p>
-        </div>
-      )}
+      <h3>Weather Report</h3>
+      <p>Temperature: {weatherData.main.temp}°C</p>
+      <p>Humidity: {weatherData.main.humidity}%</p>
+      <p>Wind Speed: {weatherData.wind.speed}m/s</p>
     </div>
   );
-}
+};
+
 export default Weather;

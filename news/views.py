@@ -3,6 +3,10 @@ from django.contrib import messages
 from django.urls import reverse
 from .models import News, Categories,UsersFavoriteCategory,ExtraField
 from rest_framework.views import APIView
+from rest_framework.response import Response
+from rest_framework import status
+from rest_framework.generics import ListAPIView
+from rest_framework.permissions import IsAuthenticated
 from django.contrib.auth import login, authenticate
 from django.contrib.auth.forms import UserCreationForm
 from django.contrib.auth.mixins import LoginRequiredMixin
@@ -20,66 +24,106 @@ import requests,os
 from google.oauth2 import id_token
 # Create your views here.
 
-class Home(View):
-     def get(self, request, *args,**kwargs):
+# class Home(View):
+#      def get(self, request, *args,**kwargs):
+#         first_news = News.objects.first()
+#         three_news = News.objects.all()[1:3]
+#         three_categories = Categories.objects.all()[0:3]
+#         context = {
+#             'first_news': first_news,
+#             'three_news': three_news,
+#             'three_categories': three_categories
+#         }
+#         return render(request, 'home.html', context)
+
+class Home(APIView):
+    def get(self, request, *args, **kwargs):
         first_news = News.objects.first()
         three_news = News.objects.all()[1:3]
         three_categories = Categories.objects.all()[0:3]
-        context = {
-            'first_news': first_news,
-            'three_news': three_news,
-            'three_categories': three_categories
+        data = {
+            'first_news': NewsSerializer(first_news).data,
+            'three_news': NewsSerializer(three_news, many=True).data,
+            'three_categories': []
         }
-        return render(request, 'home.html', context)
+        for category in three_categories:
+            news = News.objects.filter(category=category)[:3]
+            category_data = {
+                'id': category.id,
+                'title': category.title,
+                'news': NewsSerializer(news, many=True).data
+            }
+            data['three_categories'].append(category_data)  
+        return Response(data, status=status.HTTP_200_OK)
+
 
 # Fetch and display the list of all_news
 
-class All_news(View):
-    def get(self, request):
-        all_news=News.objects.all()
-        return render(request, 'all-news.html', {
-            'all_news': all_news
-        })  
+# class All_news(View):
+#     def get(self, request):
+#         all_news=News.objects.all()
+#         return render(request, 'all-news.html', {
+#             'all_news': all_news
+#         })  
     
-def allNews(request):
-    allNews = News.objects.all()
-    data = {'allNews': [{'title': News.title, 'detail': News.detail} for news in allNews]}
-    return JsonResponse(data)
+class All_news(APIView):
+    def get(self, request):
+        all_news = News.objects.all()
+        serializer = NewsSerializer(all_news, many=True)
+        return Response(serializer.data, status=status.HTTP_200_OK)    
+# def allNews(request):
+#     allNews = News.objects.all()
+#     data = {'allNews': [{'title': News.title, 'detail': News.detail} for news in allNews]}
+#     return JsonResponse(data)
      
 
 # Fetch the detailed full news 
-class Detail(View):
+# class Detail(View):
+#     def get(self, request, id):
+#         news = get_object_or_404(News, id=id)
+#         category = Categories.objects.get(id=news.category.id)
+#         return render(request, 'detail.html', {
+#             'news': news,
+#         })        
+    
+class Detail(APIView):
     def get(self, request, id):
         news = get_object_or_404(News, id=id)
-        category = Categories.objects.get(id=news.category.id)
-        return render(request, 'detail.html', {
-            'news': news,
-        })        
-
-# Fetch all category 
-class AllCategory(View):
-    def get(self, request):
-        cats = Categories.objects.all()
-        return render(request, 'category.html', {
-            'cats': cats
-        })
+        serializer = NewsSerializer(news)
+        return Response(serializer.data, status=status.HTTP_200_OK)
     
-# class AllCategory(View):  
+# Fetch all category 
+# class AllCategory(View):
 #     def get(self, request):
 #         cats = Categories.objects.all()
-#         data = [{'id': cat.id, 'title': cat.title, 'category_image': cat.category_image.url} for cat in cats]
-#         return JsonResponse({'categories': data})    
+#         return render(request, 'category.html', {
+#             'cats': cats
+#         })
+class AllCategory(APIView):
+    def get(self, request):
+        cats = Categories.objects.all()
+        serializer = CategoriesSerializer(cats, many=True)
+        return Response(serializer.data, status=status.HTTP_200_OK)
 
 # Fetch all news from selected category
-class Category(View):
+# class Category(View):
+#     def get(self, request, id):
+#         category = get_object_or_404(Categories, id=id)
+#         news = News.objects.filter(category=category)
+#         return render(request, 'category-news.html', {
+#             'all_news': news,
+#             'categories': category
+#         })    
+class Category(APIView):
     def get(self, request, id):
         category = get_object_or_404(Categories, id=id)
         news = News.objects.filter(category=category)
-        return render(request, 'category-news.html', {
-            'all_news': news,
-            'categories': category
-        })    
-    
+        serializer = NewsSerializer(news, many=True)
+        return Response({
+            'all_news': serializer.data,
+            'categories': CategoriesSerializer(category).data
+        }, status=status.HTTP_200_OK) 
+       
 # To Signup the user for login
 class SignUpView(View):
     def get(self, request):
@@ -94,28 +138,43 @@ class SignUpView(View):
         else:
             context = {'form': form}
             return render(request, 'signup.html', context)
-        
+# class Signin        
 # To Signin the user
-class SignInView(View):
-    def get(self, request):
-        form = AuthenticationForm()
-        context = {'signin_form': form}
-        return render(request, 'signin.html', context)
+# class SignInView(View):
+#     def get(self, request):
+#         form = AuthenticationForm()
+#         context = {'signin_form': form}
+#         return render(request, 'signin.html', context)
     
+#     def post(self, request):
+#         form = AuthenticationForm(request, data=request.POST)
+#         if form.is_valid():
+#             username = form.cleaned_data.get('username')
+#             password = form.cleaned_data.get('password')
+#             user = authenticate(username=username, password=password)
+#             if user is not None:
+#                 login(request, user)
+#                 return redirect('home')
+#             else:
+#                 form.add_error(None, "Invalid username or password.")
+#         context = {'signin_form': form}
+#         return render(request, 'signin.html', context)
+
+class SignInView(APIView):
     def post(self, request):
         form = AuthenticationForm(request, data=request.POST)
         if form.is_valid():
             username = form.cleaned_data.get('username')
             password = form.cleaned_data.get('password')
-            user = authenticate(username=username, password=password)
+            user = authenticate(request, username=username, password=password)
             if user is not None:
                 login(request, user)
-                return redirect('home')
+                return Response(status=status.HTTP_200_OK)
             else:
-                form.add_error(None, "Invalid username or password.")
-        context = {'signin_form': form}
-        return render(request, 'signin.html', context)
-    
+                return Response({'error': 'Invalid username or password.'}, status=status.HTTP_400_BAD_REQUEST)
+        else:
+            return Response(form.errors, status=status.HTTP_400_BAD_REQUEST)
+            
 # To Signout the  user
 class SignOutView(View):
     def get(self, request):
@@ -123,15 +182,23 @@ class SignOutView(View):
         return render(request, 'signout.html')
 
 # To display the weather report
-class WeatherView(View):
+# class WeatherView(View):
+#     def get(self, request):
+#         api_key = os.getenv('API_KEY')
+#         city = "Madurai"
+#         api_url = f"http://api.openweathermap.org/data/2.5/weather?q={city}&appid={api_key}"
+#         response = requests.get(api_url)
+#         weather_data = response.json()
+#         return render(request, "weather.html", {"weather_data": weather_data})
+
+class WeatherView(APIView):
     def get(self, request):
         api_key = os.getenv('API_KEY')
         city = "Madurai"
         api_url = f"http://api.openweathermap.org/data/2.5/weather?q={city}&appid={api_key}"
         response = requests.get(api_url)
         weather_data = response.json()
-        return render(request, "weather.html", {"weather_data": weather_data})
-
+        return Response(weather_data, status=200)
 
 # To Authenticate the user with Google account
 class GoogleLogin(View):
@@ -208,23 +275,28 @@ class AuthRedirect(View):
 
 
 # To create an Personalized view for user    
-class MyCategoriesView(LoginRequiredMixin, ListView):
-    model = News
-    template_name = 'Fav_Categories.html'
-    context_object_name = 'fav_news'
+# class MyCategoriesView(LoginRequiredMixin, ListView):
+#     model = News
+#     template_name = 'Fav_Categories.html'
+#     context_object_name = 'fav_news'
+#     def get_queryset(self):
+#         username = self.request.user.username
+#         username = User.objects.get(username=username)
+#         favorite_categories = UsersFavoriteCategory.objects.filter(user=username)
+#         fav_news = News.objects.filter(category__in=favorite_categories.values_list('category'))
+#         return fav_news
+
+class MyCategoriesView(ListAPIView):
+    serializer_class = NewsSerializer
     def get_queryset(self):
-        username = self.request.user.username
-        username = User.objects.get(username=username)
-        favorite_categories = UsersFavoriteCategory.objects.filter(user=username)
+        user = self.request.user
+        favorite_categories = UsersFavoriteCategory.objects.filter(user=user)
         fav_news = News.objects.filter(category__in=favorite_categories.values_list('category'))
         return fav_news
+    
 
-
-def index(request):
-    return render (request, 'index.html')
-
-class NewsAPIView(APIView):
-    def get(self, request):
-        news=News.objects.all()
-        serializer= NewsSerializer(news, many= True)
-        return Response(serializer.data)
+# class NewsAPIView(APIView):
+#     def get(self, request):
+#         news=News.objects.all()
+#         serializer= NewsSerializer(news, many= True)
+#         return Response(serializer.data)

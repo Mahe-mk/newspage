@@ -1,9 +1,22 @@
-import React from 'react'
+import React, { useState, useEffect } from 'react';
+import axios from 'axios';
 
-function Fav_Categories() {
+function FavCategories() {
+	const [favCategories, setFavCategories] = useState([]);
+
+	useEffect(() => {
+	  async function fetchFavCategories() {
+		const response = await axios.get('http://127.0.0.1:8000/my-categories');
+		setFavCategories(response.data);
+	  }
+	  fetchFavCategories();
+	}, []);
+	
+console.log(FavCategories);
   return (
     <div>
-        <main className="container mt-3 mb-5">
+	{favCategories.map((category) => (
+    <main className="container mt-3 mb-5">
 	<h3 className="border-bottom pb-1 my-4">List of My Favourite News:</h3>	
 	<div className="card mb-4 shadow">
 	  <div className="row no-gutters">
@@ -20,8 +33,9 @@ function Fav_Categories() {
 	  </div>
     </div>	
 </main>
+	))}
     </div>
   )
 }
 
-export default Fav_Categories
+export default FavCategories

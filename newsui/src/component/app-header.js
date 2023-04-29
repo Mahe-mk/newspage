@@ -6,16 +6,16 @@ function AppHeader() {
 		<nav className="navbar navbar-exapand-lg navbar-dark bg-dark">
 			<div className="container row d-flex p-2 justify-content-around" >
 				<a className="navbar-brand text-decoration-none">M_K News</a>
-				<a className="text-decoration-none" href="admin/">Admin</a>
+				<a className="text-decoration-none" href="http://localhost:8000/admin/">Admin</a>
 				<a className="text-decoration-none" href="/">Home</a>
 				<a className="text-decoration-none" href="/all-news">All News</a>
 				<a className="text-decoration-none" href="/Category">All Categories</a>
 				<a className="text-decoration-none" href="/Weather">Weather </a>
 				</div>
 		<div className ="d-flex p-2 justify-content-end">
-			<Row><Col  className="col-lg-0" ><a className="text-decoration-none" href="/">My Favourites </a>
+			<Row><Col  className="col-lg-0" ><a className="text-decoration-none" href="/myCategory">My Favourites </a>
 				</Col>
-				<Col lg={6}><div className="fs-1 text-end font-monospace fw-bold text-white">Welcome Mahesh</div></Col>
+				<Col lg={6}><div className="fs-1 text-end font-monospace fw-bold text-white">Welcome </div></Col>
 				<Col lg={6}><a className="text-decoration-none" href="/">SingOut </a> </Col>
 				{/* <Col lg={12}><a className="text-decoration-none" href="/">SignIn </a></Col> */}
 				</Row>
@@ -25,6 +25,3 @@ function AppHeader() {
 	)
 }
 export default AppHeader
-
-
-
