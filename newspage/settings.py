@@ -139,7 +139,6 @@ USE_TZ = True
 
 AUTHENTICATION_BACKENDS = [
     'allauth.account.auth_backends.AuthenticationBackend',
-
     ]
 
 # Static files (CSS, JavaScript, Images)

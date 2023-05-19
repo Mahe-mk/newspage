@@ -14,7 +14,6 @@ admin.site.unregister(User)
 admin.site.register(User, CustomizedUserAdmin)
 admin.site.register(Categories)
 
-
 class AdminNews(admin.ModelAdmin):
     list_display=('title','category')
 admin.site.register(News,AdminNews)

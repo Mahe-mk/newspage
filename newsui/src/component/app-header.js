@@ -12,12 +12,12 @@ function AppHeader() {
 				<a className="text-decoration-none" href="/Category">All Categories</a>
 				<a className="text-decoration-none" href="/Weather">Weather </a>
 				</div>
-		<div className ="d-flex p-2 justify-content-end">
-			<Row><Col  className="col-lg-0" ><a className="text-decoration-none" href="/myCategory">My Favourites </a>
+				<div className ="d-flex p-2 justify-content-end">
+				<Row><Col  className="col-lg-0" ><a className="text-decoration-none" href="/myCategory">My Favourites </a>
 				</Col>
 				<Col lg={6}><div className="fs-1 text-end font-monospace fw-bold text-white">Welcome </div></Col>
-				<Col lg={6}><a className="text-decoration-none" href="/">SingOut </a> </Col>
-				{/* <Col lg={12}><a className="text-decoration-none" href="/">SignIn </a></Col> */}
+				<Col lg={6}><a className="text-decoration-none" href="/signout">SingOut </a> </Col>
+				<Col lg={12}><a className="text-decoration-none" href="/signin">SignIn </a></Col>
 				</Row>
 			</div>
 		</nav>

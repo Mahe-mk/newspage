@@ -26,7 +26,7 @@ class NewsSerializer(serializers.ModelSerializer):
 
 class UsersFavoriteCategorySerializer(serializers.ModelSerializer):
     user = UserSerializer()
-    category = CategoriesSerializer()
+    category = CategoriesSerializer() 
     class Meta:
         model = UsersFavoriteCategory
-        fields = ('id', 'user', 'category')
+        fields = ('user', 'category')

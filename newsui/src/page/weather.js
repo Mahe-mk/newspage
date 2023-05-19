@@ -1,21 +1,6 @@
-// import React from 'react'
-
-// function Weather() {
-//   return (
-//     <div>
-//     <main className="container mt-3 mb-5">
-//         <h3 className="border-bottom pb-1 my-4">Weather Report</h3>
-//         <p>Temperature:weather_data.main.temp °C</p>
-//         <p>Humidity:weather_data.main.humidity %</p>
-//         <p>Wind Speed:weather_data.wind.speed m/s</p>
-//     </main>
-//     </div>
-//   )
-// }
-// export default Weather
-
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
+import { Card } from 'react-bootstrap';
 
 const Weather = () => {
   const [weatherData, setWeatherData] = useState(null);
@@ -25,7 +10,6 @@ const Weather = () => {
     const fetchWeatherData = async () => {
       const city = "Madurai";
       const apiKey = "333a8faa57184ef5534e17ed15f5d342";
-      // const apiUrl = `http://api.openweathermap.org/data/2.5/weather?q=${city}&appid=${apiKey}&units=metric`;
       const apiUrl = `http://api.openweathermap.org/data/2.5/weather?q=${city}&appid=${apiKey}`;
 
       try {
@@ -43,13 +27,13 @@ const Weather = () => {
     return <div>Loading weather data...</div>;
   }
   return (
-    <div>
-      <h3>Weather Report</h3>
-      <p>Temperature: {weatherData.main.temp}°C</p>
-      <p>Humidity: {weatherData.main.humidity}%</p>
-      <p>Wind Speed: {weatherData.wind.speed}m/s</p>
-    </div>
-  );
+    <Card>
+      <Card.Title>Weather Report</Card.Title>
+      <Card.Text>Temperature: {weatherData.main.temp}°C</Card.Text>
+      <Card.Text>Humidity: {weatherData.main.humidity}%</Card.Text>
+      <Card.Text>Wind Speed: {weatherData.wind.speed}m/s</Card.Text>
+    </Card>
+  );  
 };
 
 export default Weather;

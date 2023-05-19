@@ -11,7 +11,7 @@ function FavCategories() {
 	  }
 	  fetchFavCategories();
 	}, []);
-	
+		
 console.log(FavCategories);
   return (
     <div>
@@ -39,3 +39,4 @@ console.log(FavCategories);
 }
 
 export default FavCategories
+

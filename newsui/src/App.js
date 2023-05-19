@@ -12,8 +12,9 @@ import Detail from './page/detail';
 import FavCategories from './page/Fav_Categories';
 import { createContext, useEffect, useState } from 'react';
 import { data } from './app-data';
-import SignInView from './page/signin';
-
+import SignIn from './page/signin';
+import SignOut from './page/signout';
+import SignUp from './page/signup';
 export const context=createContext();
 
 
@@ -40,7 +41,10 @@ const [selectedCategoryId, setSelectedCategoryId] = useState(data().selectedCate
           <Route path='categorynews' element={<CategoryNews/>} />
           <Route path="myCategory" element={<FavCategories/>} />
           <Route path="detail" element={<Detail/>} />
-          <Route path="signin" element={<SignInView/>} />
+          <Route path="signin" element={<SignIn/>} />
+          <Route path="signout" element={<SignOut/>} />
+          <Route path="signup" element={<SignUp/>} />
+
       </Routes>
     </BrowserRouter>
     </context.Provider>

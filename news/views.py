@@ -7,6 +7,7 @@ from rest_framework.response import Response
 from rest_framework import status
 from rest_framework.generics import ListAPIView
 from rest_framework.permissions import IsAuthenticated
+from rest_framework.authentication import SessionAuthentication,BasicAuthentication
 from django.contrib.auth import login, authenticate
 from django.contrib.auth.forms import UserCreationForm
 from django.contrib.auth.mixins import LoginRequiredMixin
@@ -21,21 +22,10 @@ from django.views.generic import ListView
 from.serializers import NewsSerializer,UserSerializer,CategoriesSerializer
 from dateutil import parser
 import requests,os
+from django.views.decorators.csrf import csrf_exempt
 from google.oauth2 import id_token
-# Create your views here.
 
-# class Home(View):
-#      def get(self, request, *args,**kwargs):
-#         first_news = News.objects.first()
-#         three_news = News.objects.all()[1:3]
-#         three_categories = Categories.objects.all()[0:3]
-#         context = {
-#             'first_news': first_news,
-#             'three_news': three_news,
-#             'three_categories': three_categories
-#         }
-#         return render(request, 'home.html', context)
-
+# Home Page
 class Home(APIView):
     def get(self, request, *args, **kwargs):
         first_news = News.objects.first()
@@ -58,34 +48,14 @@ class Home(APIView):
 
 
 # Fetch and display the list of all_news
-
-# class All_news(View):
-#     def get(self, request):
-#         all_news=News.objects.all()
-#         return render(request, 'all-news.html', {
-#             'all_news': all_news
-#         })  
-    
 class All_news(APIView):
     def get(self, request):
         all_news = News.objects.all()
         serializer = NewsSerializer(all_news, many=True)
         return Response(serializer.data, status=status.HTTP_200_OK)    
-# def allNews(request):
-#     allNews = News.objects.all()
-#     data = {'allNews': [{'title': News.title, 'detail': News.detail} for news in allNews]}
-#     return JsonResponse(data)
-     
 
-# Fetch the detailed full news 
-# class Detail(View):
-#     def get(self, request, id):
-#         news = get_object_or_404(News, id=id)
-#         category = Categories.objects.get(id=news.category.id)
-#         return render(request, 'detail.html', {
-#             'news': news,
-#         })        
-    
+
+# Fetch the detailed full news    
 class Detail(APIView):
     def get(self, request, id):
         news = get_object_or_404(News, id=id)
@@ -93,12 +63,6 @@ class Detail(APIView):
         return Response(serializer.data, status=status.HTTP_200_OK)
     
 # Fetch all category 
-# class AllCategory(View):
-#     def get(self, request):
-#         cats = Categories.objects.all()
-#         return render(request, 'category.html', {
-#             'cats': cats
-#         })
 class AllCategory(APIView):
     def get(self, request):
         cats = Categories.objects.all()
@@ -106,14 +70,6 @@ class AllCategory(APIView):
         return Response(serializer.data, status=status.HTTP_200_OK)
 
 # Fetch all news from selected category
-# class Category(View):
-#     def get(self, request, id):
-#         category = get_object_or_404(Categories, id=id)
-#         news = News.objects.filter(category=category)
-#         return render(request, 'category-news.html', {
-#             'all_news': news,
-#             'categories': category
-#         })    
 class Category(APIView):
     def get(self, request, id):
         category = get_object_or_404(Categories, id=id)
@@ -123,74 +79,49 @@ class Category(APIView):
             'all_news': serializer.data,
             'categories': CategoriesSerializer(category).data
         }, status=status.HTTP_200_OK) 
-       
-# To Signup the user for login
-class SignUpView(View):
+# To signup the user
+class SignUpView(APIView):
     def get(self, request):
         form = UserRegistrationForm()
         context = {'form': form}
-        return render(request, 'signup.html', context)    
+        return Response(context)
+
     def post(self, request):
-        form = UserRegistrationForm(request.POST)
+        form = UserRegistrationForm(request.data)
         if form.is_valid():
             form.save()
-            return redirect('signin')
+            return Response(status=status.HTTP_201_CREATED)
         else:
-            context = {'form': form}
-            return render(request, 'signup.html', context)
-# class Signin        
-# To Signin the user
-# class SignInView(View):
-#     def get(self, request):
-#         form = AuthenticationForm()
-#         context = {'signin_form': form}
-#         return render(request, 'signin.html', context)
-    
-#     def post(self, request):
-#         form = AuthenticationForm(request, data=request.POST)
-#         if form.is_valid():
-#             username = form.cleaned_data.get('username')
-#             password = form.cleaned_data.get('password')
-#             user = authenticate(username=username, password=password)
-#             if user is not None:
-#                 login(request, user)
-#                 return redirect('home')
-#             else:
-#                 form.add_error(None, "Invalid username or password.")
-#         context = {'signin_form': form}
-#         return render(request, 'signin.html', context)
-
+            errors = dict(form.errors.items())
+            return Response({'success': False, 'errors': errors}, status=status.HTTP_400_BAD_REQUEST)
+        
+#To Signin the user for login    
 class SignInView(APIView):
+    def get(self, request):
+        form = AuthenticationForm()
+        context = {'signin_form': form}
+        return render(request, 'signin.html', context)
+    @csrf_exempt
     def post(self, request):
-        form = AuthenticationForm(request, data=request.POST)
+        form = AuthenticationForm(request, data=request.data)
         if form.is_valid():
             username = form.cleaned_data.get('username')
             password = form.cleaned_data.get('password')
-            user = authenticate(request, username=username, password=password)
+            user = authenticate(username=username, password=password)
             if user is not None:
                 login(request, user)
-                return Response(status=status.HTTP_200_OK)
+                return Response({'success': True})
             else:
-                return Response({'error': 'Invalid username or password.'}, status=status.HTTP_400_BAD_REQUEST)
-        else:
-            return Response(form.errors, status=status.HTTP_400_BAD_REQUEST)
+                form.add_error(None, "Invalid username or password.")
+        errors = dict(form.errors.items())
+        return Response({'success': False, 'errors': errors}, status=status.HTTP_400_BAD_REQUEST)
             
 # To Signout the  user
-class SignOutView(View):
+class SignOutView(APIView):
     def get(self, request):
         logout(request)
-        return render(request, 'signout.html')
-
-# To display the weather report
-# class WeatherView(View):
-#     def get(self, request):
-#         api_key = os.getenv('API_KEY')
-#         city = "Madurai"
-#         api_url = f"http://api.openweathermap.org/data/2.5/weather?q={city}&appid={api_key}"
-#         response = requests.get(api_url)
-#         weather_data = response.json()
-#         return render(request, "weather.html", {"weather_data": weather_data})
-
+        return Response(status=status.HTTP_200_OK)
+# Weather Report
 class WeatherView(APIView):
     def get(self, request):
         api_key = os.getenv('API_KEY')
@@ -216,7 +147,7 @@ class GoogleLogin(View):
             f'redirect_uri={redirect_uri}&' + \
             f'scope={" ".join(scope)}&' + \
             f'response_type=code'
-        return redirect(auth_url)
+        return redirect(auth_url)    
     
 # To redirect the URL after getting the auth_code from API  
 class AuthRedirect(View):
@@ -270,33 +201,17 @@ class AuthRedirect(View):
                     user = User.objects.create_user(first_name, email=email, first_name=first_name)
                     extra_field = ExtraField.objects.create(user=user,phone_number=phone_number,addresses=addresses, birthdays=birthdays)
                 login(request, user)
-                return redirect('home')
-        return redirect('signin')
+                return redirect('http://127.0.0.1:3000/')
+        return redirect('http://127.0.0.1:3000/signin')
 
-
-# To create an Personalized view for user    
-# class MyCategoriesView(LoginRequiredMixin, ListView):
-#     model = News
-#     template_name = 'Fav_Categories.html'
-#     context_object_name = 'fav_news'
-#     def get_queryset(self):
-#         username = self.request.user.username
-#         username = User.objects.get(username=username)
-#         favorite_categories = UsersFavoriteCategory.objects.filter(user=username)
-#         fav_news = News.objects.filter(category__in=favorite_categories.values_list('category'))
-#         return fav_news
-
+# To view the User's Favourite Category
 class MyCategoriesView(ListAPIView):
     serializer_class = NewsSerializer
+    permission_classes = [IsAuthenticated]
     def get_queryset(self):
+        if not self.request.user.is_authenticated:
+            return []
         user = self.request.user
         favorite_categories = UsersFavoriteCategory.objects.filter(user=user)
         fav_news = News.objects.filter(category__in=favorite_categories.values_list('category'))
-        return fav_news
-    
-
-# class NewsAPIView(APIView):
-#     def get(self, request):
-#         news=News.objects.all()
-#         serializer= NewsSerializer(news, many= True)
-#         return Response(serializer.data)
+        return fav_news    
