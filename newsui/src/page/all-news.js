@@ -10,14 +10,12 @@ function AllNews() {
     axios.get("http://localhost:8000/all-news")
  .then((res) => setNewsList(res.data))
  .catch(error => console.log(error));
-    // fetchNewsData();
+    // To fetch the NewsData();
   }, []);
 
   const handleClick =(id)=>{
     setData("selectedNewsId",id)
-
   }
-
   return (
     <div className="container mt-3 mb-5">
       <h3 className="border-bottom pb-1 my-4">All News</h3>

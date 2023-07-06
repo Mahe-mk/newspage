@@ -20,17 +20,20 @@ function CategoryList() {
   }
   return (
     <div>
-      {/* <div className="container mt-3 mb-5"></div> */}
       <h3>All Categories:</h3>
       {categories.map((category) => (
         <div>
-        <Card key={category.id}>
+          <Row className='d-flex justify-content-center'>
+          <Col md={4} sm={4} >
+          <Card key={category.id}>
           <Card.Title>{category.title}</Card.Title>
           <Card.Img src={'http://localhost:8000' + category.category_image} alt={category.title} className="card-img-top" />
-          <p>
+          <div className='pt-3'>
             <Button className="btn btn-sm btn-success" href="/categorynews"  onClick={()=>handleClick(category.id)}>Full News</Button>
-          </p>
-        </Card>
+          </div>
+          </Card>
+          </Col>
+          </Row>
         </div>
       ))}
     </div>

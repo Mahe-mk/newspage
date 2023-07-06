@@ -4,7 +4,7 @@ from django.conf.urls.static import static
 from django.contrib.auth import views as auth_views
 from news import views
 from.views import Home,All_news,AllCategory,Detail,Category,SignOutView,SignUpView,WeatherView,GoogleLogin,AuthRedirect,MyCategoriesView,SignInView
-
+from rest_framework_simplejwt import views as jwt_views
 
 urlpatterns=[
     path('',Home.as_view(),name='home'),
@@ -17,11 +17,13 @@ urlpatterns=[
     # path('signin', SignInView.as_view(), name='signin'),
     # path('api/signin/', SignInView.as_view(), name='signin'),
     # path('signout', auth_views.LogoutView.as_view(template_name='signout.html'), name='signout'),
-    path('signup',SignUpView.as_view(),name='signup'),
+    path('signup/',SignUpView.as_view(),name='signup'),
     path('signin/', SignInView.as_view(), name='signin'),
-    path('signout/', SignOutView.as_view(), name='signout'),
+    path('signout/', views.SignOutView.as_view(), name='signout'),
     path('weather',WeatherView.as_view(),name='weather'),
     path('google/login/?next=/', GoogleLogin.as_view(), name='google_login'),
-    path('google/login/callback/', AuthRedirect.as_view(), name='google_callback')
+    path('google/login/callback/', AuthRedirect.as_view(), name='google_callback'),
+    path('token/',jwt_views.TokenObtainPairView.as_view(), name ='token_obtain_pair'),
+    path('token/refresh/', jwt_views.TokenRefreshView.as_view(), name ='token_refresh'),
 ]
 urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

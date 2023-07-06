@@ -1,5 +1,6 @@
 from django.shortcuts import render,redirect,get_object_or_404
 from django.contrib import messages
+from django.http import HttpResponseRedirect
 from django.urls import reverse
 from .models import News, Categories,UsersFavoriteCategory,ExtraField
 from rest_framework.views import APIView
@@ -7,7 +8,6 @@ from rest_framework.response import Response
 from rest_framework import status
 from rest_framework.generics import ListAPIView
 from rest_framework.permissions import IsAuthenticated
-from rest_framework.authentication import SessionAuthentication,BasicAuthentication
 from django.contrib.auth import login, authenticate
 from django.contrib.auth.forms import UserCreationForm
 from django.contrib.auth.mixins import LoginRequiredMixin
@@ -17,6 +17,7 @@ from google_auth_oauthlib.flow import Flow
 from django.contrib.auth import logout
 from django.contrib.auth.models import User
 from django.contrib.auth.forms import AuthenticationForm
+from rest_framework.authentication import SessionAuthentication
 from django.views import View
 from django.views.generic import ListView
 from.serializers import NewsSerializer,UserSerializer,CategoriesSerializer
@@ -24,6 +25,11 @@ from dateutil import parser
 import requests,os
 from django.views.decorators.csrf import csrf_exempt
 from google.oauth2 import id_token
+from rest_framework_simplejwt.tokens import RefreshToken
+from rest_framework.decorators import api_view
+from rest_framework_jwt.settings import api_settings
+from rest_framework_simplejwt.authentication import JWTAuthentication
+
 
 # Home Page
 class Home(APIView):
@@ -79,27 +85,29 @@ class Category(APIView):
             'all_news': serializer.data,
             'categories': CategoriesSerializer(category).data
         }, status=status.HTTP_200_OK) 
-# To signup the user
+    
+# To signup the user        
 class SignUpView(APIView):
     def get(self, request):
         form = UserRegistrationForm()
         context = {'form': form}
-        return Response(context)
-
+        # return render(request, 'signup.html', context)
+        return JsonResponse(context)
     def post(self, request):
-        form = UserRegistrationForm(request.data)
+        form = UserRegistrationForm(data=request.data)
         if form.is_valid():
             form.save()
-            return Response(status=status.HTTP_201_CREATED)
+            # return JsonResponse({'success': True},status=status.HTTP_201_CREATED)
+            return redirect('http://127.0.0.1:3000/signin')
         else:
             errors = dict(form.errors.items())
-            return Response({'success': False, 'errors': errors}, status=status.HTTP_400_BAD_REQUEST)
-        
+            return JsonResponse({'success': False, 'errors': errors}, status=status.HTTP_400_BAD_REQUEST)
+                
 #To Signin the user for login    
 class SignInView(APIView):
     def get(self, request):
         form = AuthenticationForm()
-        context = {'signin_form': form}
+        context = {'signin_form': form} 
         return render(request, 'signin.html', context)
     @csrf_exempt
     def post(self, request):
@@ -110,17 +118,32 @@ class SignInView(APIView):
             user = authenticate(username=username, password=password)
             if user is not None:
                 login(request, user)
-                return Response({'success': True})
+                refresh = RefreshToken.for_user(user)
+                token = str(refresh.access_token)
+                print("Generated token:", token)
+                return Response({'success': True,'token': token})
             else:
                 form.add_error(None, "Invalid username or password.")
         errors = dict(form.errors.items())
-        return Response({'success': False, 'errors': errors}, status=status.HTTP_400_BAD_REQUEST)
-            
-# To Signout the  user
+        return Response({'success': False, 'errors': errors}, status= status.HTTP_400_BAD_REQUEST)
+          
+# To Signout the  user   
 class SignOutView(APIView):
+    permission_classes = (IsAuthenticated,)
     def get(self, request):
         logout(request)
-        return Response(status=status.HTTP_200_OK)
+        return Response(status=status.HTTP_200_OK)  
+    @csrf_exempt  
+    def post(self, request):     
+          try:
+               refresh_token = request.data["refresh_token"]
+               token = RefreshToken(refresh_token)
+               token.blacklist()
+               return Response(status=status.HTTP_205_RESET_CONTENT)
+          except Exception as e:
+               return Response(status=status.HTTP_400_BAD_REQUEST)
+
+
 # Weather Report
 class WeatherView(APIView):
     def get(self, request):
@@ -203,15 +226,17 @@ class AuthRedirect(View):
                 login(request, user)
                 return redirect('http://127.0.0.1:3000/')
         return redirect('http://127.0.0.1:3000/signin')
+    
 
 # To view the User's Favourite Category
 class MyCategoriesView(ListAPIView):
     serializer_class = NewsSerializer
     permission_classes = [IsAuthenticated]
+    authentication_classes = [JWTAuthentication]
     def get_queryset(self):
         if not self.request.user.is_authenticated:
             return []
         user = self.request.user
         favorite_categories = UsersFavoriteCategory.objects.filter(user=user)
         fav_news = News.objects.filter(category__in=favorite_categories.values_list('category'))
-        return fav_news    
+        return fav_news   

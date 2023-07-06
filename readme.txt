@@ -1,6 +1,9 @@
 Installed packages while executing this project
 
 django-allauth
+django-rest_framework
+node.js
+
 
 
 API Console:

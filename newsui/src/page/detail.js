@@ -3,7 +3,6 @@ import axios from 'axios';
 import { context } from '../App';
 import { useNavigate,} from 'react-router-dom';
 import { Button, Card, Col, NavLink, Row } from "react-bootstrap";
-// import useAppContext from "../context";
 
 function Detail() {
   const [detail, setdetail] = useState([]);
@@ -16,12 +15,9 @@ function Detail() {
  .then((res) => setdetail(res.data))
  .catch(error => console.log(error));
   }, []);
-  
   console.log("selectedNewsId",selectedNewsId);
-  // console.log("selectedId", typeof selectedId);
   return (
     <div>
-      {/* {detail?.map(news => ( */}
         <main className="container mt-3 mb-5" id>
         <Row className="row my-3">   
             <Col className="col-md-8">
@@ -34,11 +30,9 @@ function Detail() {
                 </Card.Body>
                 </Card>		
                 <Button variant="success" size="sm"  onClick={() => navigate(-1)} >Go back</Button>
-                {/* <p className="card-text"><button onClick={() => navigate(-1)}className="btn btn-sm btn-success">Go back</button></p> */}
         </Col>	
         </Row>
         </main>
-      {/* ))} */}
     </div>
   )
 }

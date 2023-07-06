@@ -4,7 +4,7 @@ import { Button, Col, Row } from 'react-bootstrap';
 function AppHeader() {
 	return (<>
 		<nav className="navbar navbar-exapand-lg navbar-dark bg-dark">
-			<div className="container row d-flex p-2 justify-content-around" >
+			<div className="container row d-flex justify-content-around" >
 				<a className="navbar-brand text-decoration-none">M_K News</a>
 				<a className="text-decoration-none" href="http://localhost:8000/admin/">Admin</a>
 				<a className="text-decoration-none" href="/">Home</a>

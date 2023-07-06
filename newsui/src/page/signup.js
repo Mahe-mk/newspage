@@ -26,7 +26,7 @@ const SignupForm = () => {
   };
   const handleSubmit = (event) => {
     event.preventDefault();
-    fetch('http://127.0.0.1:8000/signup', {                
+    fetch('http://127.0.0.1:8000/signup/', {                
       method: 'POST',
       body: JSON.stringify(form),
       headers: {
@@ -98,6 +98,7 @@ const SignupForm = () => {
       
 <div className='pt-3'>
 <Button type="submit">Register</Button>
+<p>Already have an account ? <a href="/signin">Signin Instead</a></p>
 </div>
     </Form>
     </div>

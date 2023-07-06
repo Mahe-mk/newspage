@@ -1,6 +1,3 @@
-
-
-
 import React, { useState, useEffect, useContext } from 'react';
 import axios from 'axios';
 import { context } from '../App';
@@ -45,7 +42,6 @@ function CategoryNews() {
             </Row>
           </Card>
         ))}
-        {/* <p className="card-text"><a href="/category" className="btn btn-sm btn-success">Previous Page</a></p>  */}
         <Button variant="success" size="sm"  onClick={() => navigate(-1)} >Go back</Button>
       </main>
     </div>
