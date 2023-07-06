@@ -29,7 +29,7 @@ const [selectedCategoryId, setSelectedCategoryId] = useState(data().selectedCate
         selectedCategoryIdValue:[selectedCategoryId, setSelectedCategoryId]
       }}>
       <AppHeader/>
-      {/* <Home/>
+      {/* <Home/> 
       <AllNews/> */}
 
       <BrowserRouter>

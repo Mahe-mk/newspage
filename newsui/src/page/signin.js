@@ -15,7 +15,9 @@
       try {
         const response = await axios.post('http://localhost:8000/signin/', formData);
         console.log(response.data);
-        // navigate('/');
+        const token = response.data.token;
+        localStorage.setItem('token', token);
+        navigate('/');
       } catch (error) {
         console.error(error);
       }

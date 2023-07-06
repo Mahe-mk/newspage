@@ -23,24 +23,6 @@
 		}
 		fetchFavCategories();
 	}, []);
-	async function signIn() {
-		try {
-		const response = await axios.post('http://localhost:8000/signin/', {
-		});
-		const { success, token } = response.data;
-		if (success) {	
-			localStorage.setItem('token', token);
-			console.log('Stored token:', token);
-		}
-		return success;
-		} catch (error) {
-		console.error('Error signing in:', error);
-		throw error;
-		}	
-	}
-	useEffect(() => {
-		signIn('Siva', 'Mahesh@123'); 
-	}, []);
 	const handleClick =(id)=>{
 		setData("selectedNewsId",id)
 	}
@@ -70,5 +52,3 @@
 	}
 
 	export default FavCategories;
-
-
